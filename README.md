@@ -18,10 +18,9 @@ Y=cov.chol%*%matrix(rnorm(N*n),nrow=N)
 ord=GPvecchia::order_maxmin_exact(locs)
 NNarray.max=GpGp::find_ordered_nn(locs[ord,],30)[,-1]
 scales=computeScales(locs[ord,],NNarray.max)
-Y.ord=Y[ord,]
 
 ## fit posterior transport map
-fit=optimFitMap(Y.ord,NNarray.max,scales=scales)
+fit=optimFitMap(Y[ord,],NNarray.max,scales=scales)
 
 ## draw new sample from posterior predictive distr
 newsamp=condSamp(fit)
