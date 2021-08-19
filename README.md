@@ -1,6 +1,6 @@
 # Scalable Bayesian transport maps for non-Gaussian spatial fields
 
-To reproduce the figures and results in Katzfuss & Schäfer (2021), please follow the file `main.R`.
+To reproduce the figures and results in Katzfuss & Schäfer (2021), please follow the file `main.R`. Code for Figure 3 (written in Julia) can be found in the folder `figure3_julia`.
 
 To get started using the method on your own data, the following toy example may be helpful.
 ```{r}
