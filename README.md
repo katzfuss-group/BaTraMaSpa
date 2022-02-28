@@ -14,19 +14,13 @@ locs=as.matrix(expand.grid(grid,grid))
 cov.chol=t(chol(exp(-rdist(locs)/.3)))
 Y=cov.chol%*%matrix(rnorm(N*n),nrow=N)
 
-## ordering and nearest neighbors
-ord=GPvecchia::order_maxmin_exact(locs)
-NNarray.max=GpGp::find_ordered_nn(locs[ord,],30)[,-1]
-scales=computeScales(locs[ord,],NNarray.max)
-
 ## fit posterior transport map
-fit=optimFitMap(Y[ord,],NNarray.max,scales=scales)
+fit=optimFitMapAuto(Y,locs)
 
 ## draw new sample from posterior predictive distr
-newsamp=condSamp(fit)
-newsamp[ord]=newsamp  # original ordering
+newsamp=condSampAuto(fit)
 
-## plot the new sample
+## plot new sample produced via transport map
 quilt.plot(locs[,1],locs[,2],newsamp,nx=sqrt(N),ny=sqrt(N))
 ```
 
