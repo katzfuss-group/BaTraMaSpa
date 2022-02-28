@@ -29,7 +29,7 @@ N.all=ncol(x)-N.test
 Ns = c(10,20,30,50,N.all)
 methods=1:5
 splits=5
-ls=array(dim=c(splits,length(Ns),7))
+ls=array(dim=c(splits,length(Ns),8))
 cor.ord=TRUE
 
 ## random splits
@@ -60,6 +60,11 @@ for(split in 1:splits){
               control=list(trace=0,maxit=100,reltol=1e-3))
     par.est=opt$par
     ls[split,i.N,7]=-exp_nloglik(par.est,data.test)
+    
+    ## autoFRK
+    multi.imat=autoFRK::autoFRK(Data=data.train, loc=locs, maxK= round(sqrt(n)))
+    covhat=multi.imat$G%*%multi.imat$M%*%t(multi.imat$G)+multi.imat$s*diag(n)
+    ls[split,i.N,8]=sum(dmvnorm(t(data.test),rep(0,n),sigma=covhat,log=TRUE))
     
     ## save results
     save(ls,Ns,file='output/compRes_climate_scales.RData')

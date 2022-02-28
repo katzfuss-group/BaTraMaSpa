@@ -245,6 +245,21 @@ optimFitMap=function(dat,NNarray,...,linear=FALSE,parallel=FALSE){
 }
 
 
+### convenience function for automatic optimization and fitting
+optimFitMapAuto=function(dat,locs,...){
+  
+  ## ordering and nearest neighbors
+  ord=GPvecchia::order_maxmin_exact(locs)
+  NNarray.max=GpGp::find_ordered_nn(locs[ord,],30)[,-1]
+  scales=computeScales(locs[ord,],NNarray.max)
+  
+  ## fit posterior transport map
+  fit=optimFitMap(dat[ord,],NNarray.max,scales=scales,...)
+  fit$ord=ord
+  
+  return(fit)
+}
+
 
 
 ### sampling
@@ -321,6 +336,20 @@ NCondSamp=function(N.samp,dat,NNarray,...){
     print(j)
     x.samp[,j]=condSamp(fit,mode='bayes')
   }
+  
+  return(x.samp)
+}
+
+
+### convenience function for automatic sampling
+condSampAuto=function(fit,N.samp=1,...){
+  
+  x.samp=array(dim=c(length(fit$ord),N.samp))
+  for(j in 1:N.samp) {
+    x.samp[,j]=condSamp(fit,...)
+  }
+  
+  x.samp[fit$ord,]=x.samp  # original ordering
   
   return(x.samp)
 }

@@ -41,6 +41,25 @@ for(i in c(40,2000)){
 
 
 
+### regression weights
+
+weights=array(dim=c(n-2,m.max))
+for(i in 3:n){
+  m.i=min(i-1,m.max)
+  X=t(dat.ord[NNarray.max[i,1:m.i],,drop=FALSE])
+  coeff=coef(glmnet::cv.glmnet(X,dat.ord[i,],alpha=1,intercept=FALSE))
+  weights[i-2,1:m.i]=coeff[-1]
+}
+squared.dev=apply(weights^2,2,mean,na.rm=TRUE)
+
+pdf(file='plots/climate_sq_weights.pdf',width=4.0,height=4.0)
+par(mgp = c(1.6,.5,0), mar=c(2.6,2.6,.3,.1)) # bltr
+plot(squared.dev[1:15],xlab='k',ylab='mean squared weights',col=1,cex=1.5)
+abline(h=0)
+lines(squared.dev[1:15],col=1,lwd=2)
+dev.off()
+
+
 ### leave-one-out test data: last ensemble member
 dat.train=dat.ord[,-N]
 dat.test=dat.ord[,N]
@@ -142,3 +161,51 @@ plot(l1ac,xlab='coefficient index',ylab='lag-1 autocorrelation')
 dev.off()
 
 
+
+
+#############  UQ for subregion    ##############
+
+
+## training and testing data
+N.train=30
+dat.train=dat.ord[,1:N.train]
+dat.test=dat.ord[,(N.train+1):N]
+
+## sample from nonlinear TM
+fit=optimFitMap(dat.train,NNarray.max,scales=scales)
+N.samp=500
+x.samp=array(dim=c(n,N.samp))
+for(j in 1:N.samp) {
+  print(j)
+  x.samp[,j]=condSamp(fit)
+}
+
+## sample other methods
+multi.imat=autoFRK::autoFRK(Data=dat.train, loc=locs.ord, maxK= round(sqrt(n)))
+covhat=multi.imat$G%*%multi.imat$M%*%t(multi.imat$G)+multi.imat$s*diag(n)
+a.samp=t(mvtnorm::rmvnorm(N.samp,rep(0,n),sigma=covhat))
+
+library(mvtnorm)
+exp_nloglik <- function(params,dat){
+  cov.exp=exp(params[1])*exp(-dists/exp(params[2]))
+  -sum(dmvnorm(t(dat),rep(0,n),sigma=cov.exp,log=TRUE))
+}
+dists=rdist(locs.ord)
+opt=optim(log(c(1,max(dists)*.1)),exp_nloglik,dat=dat.train,
+          control=list(trace=0,maxit=100,reltol=1e-3))
+covhat=exp(opt$par[1])*exp(-dists/exp(opt$par[2]))
+e.samp=t(mvtnorm::rmvnorm(N.samp,rep(0,n),sigma=covhat))
+
+## define subregion
+inds=which(lon>=250 & lon<255 & lat> -13 & lat< -10)
+
+## plot
+pdf(file='plots/climate_area_fit.pdf',width=4.0,height=4.0)
+par(mgp = c(1.6,.5,0), mar=c(2.6,2.6,.3,.1)) # bltr
+hist(colMeans(dat.test[inds,]),freq=FALSE,main='',xlab='area average',
+     xlim=c(-3.5,2.5))
+lines(density(colMeans(x.samp[inds,])),col=3,lwd=2,lty=1)
+lines(density(colMeans(a.samp[inds,])),col=2,lwd=2,lty=2)
+lines(density(colMeans(e.samp[inds,])),col=4,lwd=2,lty=3)
+legend('topleft',c('nonlin','expCov','autoFRK'),col=c(3,2,4),lty=c(1,2,3))
+dev.off()
