@@ -181,9 +181,9 @@ als=-apply(ls,2:3,mean,na.rm=TRUE)
 pdf(file='plots/ls_precip.pdf',width=4.0,height=4.0)
 par(mgp = c(1.6,.5,0), mar=c(2.6,2.6,.3,.1)) # bltr
 matplot(Ns,als,type='l',lwd=2,xlab='n',ylab='LS',
-        ylim=range(als[,c(1,3,5)]),col=c(1:6,8))
-legend('topright',c(name,'tapSamp','expCov'),lty=1:7,
-       col=c(1:6,8),bg='white',lwd=2)
+        ylim=range(als[,c(1,3,5)]),col=c(1:6,8,7))
+legend('topright',c(name,'tapSamp','expCov','autoFRK'),lty=1:8,
+       col=c(1:6,8,7),bg='white',lwd=2)
 dev.off()
 round(apply(als,2,min))
 
