@@ -322,7 +322,8 @@ condSamp=function(fit,mode='bayes',x.fixed=c(),obs,ind.last=nrow(fit$dat)){
     }
     
   }
-  if(mode %in% c('score','scorepm')) return(sum(score)) else return(x.new)
+  if(mode %in% c('score','scorepm')) return(sum(score[(length(x.fixed)+1):n])) else 
+    return(x.new)
 }
 
 
@@ -908,7 +909,7 @@ predDPMSerial=function(fit,mode='samp',obs,x.fixed=c(),ind.last=nrow(fit$dat)){
     
   }
   
-  if(mode=='samp') return(x.samp) else return(sum(score))
+  if(mode=='samp') return(x.samp) else return(sum(score[(length(x.fixed)+1):n]))
   # return(mix.params)
   
 }
