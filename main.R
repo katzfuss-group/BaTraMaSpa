@@ -3,15 +3,15 @@
 # This file contains or sources the code to reproduce all plots and results.
 # Set your working directory to the folder containing this file.
 # Place all additional R files in a subfolder called "code/".
-# Place prec_days.RData in a subfolder called "data/".
+# Place prec_days.RData and prec_all.RData in a subfolder called "data/".
 # Ensure that there are (empty) subfolders called "output/" and "plots/".
 # Note: Some portions of the code can take a very long time to run.
 
 
 ### required functions
 # setwd("G:/My Drive/projects/triangular_spatial")
-source('code/nonlinearSpatial_functions.R')
-source('code/logScore_comparison.R')
+source('code/nonlinearSpatial_functions.R')  # method implementation
+source('code/logScore_comparison.R')  # helper functions for comparisons
 
 
 
@@ -108,8 +108,6 @@ dev.off()
 
 
 
-
-
 ######  matern+sine illustrations  ######
 
 
@@ -117,30 +115,41 @@ source('code/maternSine_illustration.R')
 
 
 
-
-
-
-
-######  matern+sine KL comparisons  ######
+######  matern+sine KL comparisons with Matern GP  ######
 
 name=c('linear','S-linear','nonlin','S-nonlin','DPM')
 
 ### compute KL values for different settings, save in output folder
-source('code/maternSine_comparison.R')
+source('code/maternSine_GP_comparison.R')
 
 ### plot comparisons results for increasing N
 files=c('sin_lin','sin','sin_random','sin_DPM')
 for(fi in 1:length(files)){
-  load(file=paste0('output/compRes_',files[fi],'.RData'))
-  pdf(file=paste0('plots/klcomp_',files[fi],'.pdf'),width=3.5,height=3.5)
+  load(file=paste0('output/compRes_GP_',files[fi],'.RData'))
+  pdf(file=paste0('plots/klcomp_GP_',files[fi],'.pdf'),width=3.5,height=3.5)
   par(mgp = c(1.6,.5,0), mar=c(2.6,2.6,.3,.1)) # bltr
   matplot(log10(Ns),kls,type='l',lwd=3.5,xlab='n',ylab='KL',xaxt='n',
+          lty=c(methods,6),col=c(methods,6),
           ylim=range(kls[,-4],na.rm=TRUE)) # exclude nonlin for plot range
   axis(1,at=log10(Ns),labels=Ns,lwd=0,lwd.ticks=1)
   if(fi %in% c(1,4)) lloc='topright' else lloc='bottomleft' 
-  legend(lloc,name[methods],lty=methods,col=methods,lwd=2.5,bg='white')
+  legend(lloc,c(name[methods],'MatCov'),lwd=2.5,bg='white',
+         lty=c(methods,6),col=c(methods,6))
   dev.off()
 }
+
+fil='prod'
+load(file=paste0('output/compRes_GP_',fil,'.RData'))
+pdf(file=paste0('plots/klcomp_GP_',fil,'.pdf'),width=3.5,height=3.5)
+par(mgp = c(1.6,.5,0), mar=c(2.6,2.6,.3,.1)) # bltr
+matplot(log10(Ns),ls,type='l',lwd=3.5,xlab='n',ylab='log score',xaxt='n',
+        lty=c(methods,6),col=c(methods,6),
+        ylim=range(ls[,-4],na.rm=TRUE)) # exclude nonlin for plot range
+axis(1,at=log10(Ns),labels=Ns,lwd=0,lwd.ticks=1)
+legend('topright',c(name[methods],'MatCov'),lwd=2.5,bg='white',
+       lty=c(methods,6),col=c(methods,6))
+dev.off()
+
 
 
 
@@ -171,19 +180,31 @@ source('code/climate_illustrations.R')
 
 
 
-######  climate data: log-score comparison  ######
+######  climate data: log-score comparison incl holdout  ######
 
-source('code/climate_comparison.R')
+source('code/climateComparison_holdout.R')
 
-load(file='output/compRes_climate_scales.RData')
-als=-apply(ls,2:3,mean,na.rm=TRUE)
+load(file='output/compRes_climate_holdout.RData')
 
+## full map
+als=-apply(ls[,,,1],2:3,mean,na.rm=TRUE)
 pdf(file='plots/ls_precip.pdf',width=4.0,height=4.0)
 par(mgp = c(1.6,.5,0), mar=c(2.6,2.6,.3,.1)) # bltr
 matplot(Ns,als,type='l',lwd=2,xlab='n',ylab='LS',
-        ylim=range(als[,c(1,3,5)]),col=c(1:6,8,7))
-legend('topright',c(name,'tapSamp','expCov','autoFRK'),lty=1:8,
-       col=c(1:6,8,7),bg='white',lwd=2)
+        ylim=range(als[,c(1,3,5,6)],na.rm=TRUE),lty=c(1:6,4),col=c(1:6,8))
+legend('bottomleft',c(name[-4],'MatCov','local'),lty=c(1:3,5,6,4),
+       col=c(1:3,5,6,8),bg='white',lwd=2)
+dev.off()
+round(apply(als,2,min))
+
+## holdout set
+als=-apply(ls[,,,2],2:3,mean,na.rm=TRUE)
+pdf(file='plots/ls_precip_ho.pdf',width=4.0,height=4.0)
+par(mgp = c(1.6,.5,0), mar=c(2.6,2.6,.3,.1)) # bltr
+matplot(Ns,als,type='l',lwd=2,xlab='n',ylab='LS',
+        ylim=range(als[,c(1,3,5,6)],na.rm=TRUE),lty=c(1:6,4),col=c(1:6,8))
+legend('bottomleft',c(name[-4],'MatCov','local'),lty=c(1:3,5,6,4),
+       col=c(1:3,5,6,8),bg='white',lwd=2)
 dev.off()
 round(apply(als,2,min))
 
