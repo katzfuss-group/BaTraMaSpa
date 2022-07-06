@@ -18,12 +18,12 @@ locs=cbind(cos(L)*cos(l),cos(L)*sin(l),sin(L))
 cor.ord=FALSE
 
 
-# ### plotting
-# pdf(file='plots/precip_samp_global.pdf',width=5.0,height=4.0)
-# par(mgp = c(1.6,.5,0), mar=c(2.6,2.6,.3,.1)) # bltr
-# quilt.plot(ifelse(lon<=180,lon,lon-360),lat,x[,10],nx=288,ny=192)
-# map('world',add=TRUE)
-# dev.off()
+### plotting
+pdf(file='plots/precip_samp_global.pdf',width=5.0,height=4.0)
+par(mgp = c(1.6,.5,0), mar=c(2.6,2.6,.3,.1)) # bltr
+quilt.plot(ifelse(lon<=180,lon,lon-360),lat,x[,10],nx=288,ny=192)
+map('world',add=TRUE)
+dev.off()
 
 
 ## training and test data
