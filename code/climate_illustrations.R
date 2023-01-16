@@ -162,6 +162,67 @@ dev.off()
 
 
 
+#### compare reconstruction to PCA
+
+x=xs.ord[,,1]
+N.test=18
+N.all=ncol(x)-N.test
+Ns = c(10,20,30,50,N.all)
+splits=2
+ls=array(dim=c(splits,length(Ns),2))
+ls.k=numeric(length=N.test)
+
+## random splits
+for(split in 1:splits){
+  
+  perm=sample(1:ncol(x),ncol(x))
+  data.all=x[,perm[1:N.all]]
+  data.test=x[,perm[(N.all+1):length(perm)]]
+  
+  ## compute log scores for different methods
+  for(i.N in 1:length(Ns)){
+    
+    ## training data
+    N=Ns[i.N]; print(paste0('N=',N))
+    data.train=data.all[,1:N]
+    
+    ## fit TM
+    fit=optimFitMap(data.train,NNarray.max,scales=scales)
+    for(k in 1:N.test){
+      x.test=data.test[,k]
+      ls.k[k]=-condSamp(fit,mode='score',obs=x.test,x.fixed=x.test[1:N])
+    }
+    ls[split,i.N,1]=mean(ls.k)
+    
+    ## PCA/EOFs
+    pcs=prcomp(t(data.train),tol=0)
+    for(k in 1:N.test){
+      x.test=data.test[,k]
+      pred=predict(pcs,newdata=matrix(x.test,nrow=1))[1,]
+      predfield=colSums(pred*t(pcs$rotation))
+      sd.error=sqrt(mean((x.test[1:N]-predfield[1:N])^2))
+      ls.k[k]=-sum(dnorm(x.test,predfield,sd.error,log=TRUE))
+    }
+    ls[split,i.N,2]=mean(ls.k)
+    
+    ## save results
+    print(ls[split,i.N,])
+    save(ls,Ns,file='output/reconstruction_PCA.RData')
+    
+  }
+  
+}
+
+als=apply(ls,2:3,mean)
+pdf(file='plots/recon_precip.pdf',width=4.0,height=4.0)
+par(mgp = c(1.6,.5,0), mar=c(2.6,2.6,.3,.1)) # bltr
+matplot(Ns,als,type='l',lwd=2,xlab='n',ylab='LS',lty=1:2,col=1:2)
+legend('left',c('TM','PCA'),lty=1:2,col=1:2,bg='white',lwd=2)
+dev.off()
+
+
+
+
 
 #############  UQ for subregion    ##############
 

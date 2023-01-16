@@ -36,7 +36,7 @@ compScore=function(locs,data.train,data.test,methods=1:4,NNarray.max,
 
   
   ## serial or parallel depending on N
-  parallel = (N>=100 & n>=500)
+  parallel = (N>=100 & n>=500)  ######################
   
   ## 1: linear (w/ UQ)
   if(1 %in% methods){ 
@@ -50,7 +50,7 @@ compScore=function(locs,data.train,data.test,methods=1:4,NNarray.max,
     # compute log scores
     for(j in 1:N.test) log.scores[k,j]=condSamp(fit,mode='score',obs=dat.test[,j])
     
-    # compute energy scores if requested
+    # compute other scores if requested
     if(holdout) ho.scores[k,]=compHoldout(fit,dat.test,mode='score',n.fix)
     
     k=k+1
@@ -67,7 +67,7 @@ compScore=function(locs,data.train,data.test,methods=1:4,NNarray.max,
     for(j in 1:N.test) log.scores[k,j]=condSamp(fit,mode='scorepm',
                                                 obs=dat.test[,j])
     
-    # compute energy scores if requested
+    # compute other scores if requested
     if(holdout) ho.scores[k,]=compHoldout(fit,dat.test,mode='scorepm',n.fix)
     
     k=k+1
@@ -87,7 +87,7 @@ compScore=function(locs,data.train,data.test,methods=1:4,NNarray.max,
     # compute log scores
     for(j in 1:N.test) log.scores[k,j]=condSamp(fit,mode='score',obs=dat.test[,j])
     
-    # compute energy scores if requested
+    # compute other scores if requested
     if(holdout) ho.scores[k,]=compHoldout(fit,dat.test,mode='score',n.fix)
     
     k=k+1
@@ -104,7 +104,7 @@ compScore=function(locs,data.train,data.test,methods=1:4,NNarray.max,
     for(j in 1:N.test) log.scores[k,j]=condSamp(fit,mode='scorepm',
                                                 obs=dat.test[,j])
     
-    # compute energy scores if requested
+    # compute other scores if requested
     if(holdout) ho.scores[k,]=compHoldout(fit,dat.test,mode='scorepm',n.fix)
     
     k=k+1
@@ -123,7 +123,7 @@ compScore=function(locs,data.train,data.test,methods=1:4,NNarray.max,
     
     # compute log scores
     for(j in 1:N.test) log.scores[k,j]=predDPM(fit,obs=dat.test[,j],
-                                               parallel=TRUE)
+                                               parallel=TRUE,mode='score')
     
     if(holdout){
       for(j in 1:N.test) ho.scores[k,j]=predDPMSerial(fit,mode='score',

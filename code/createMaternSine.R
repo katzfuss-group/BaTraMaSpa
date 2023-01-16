@@ -38,7 +38,7 @@ x.total=array(dim=c(n,N.total))
 mult=nonlin
 f=function(vals,w){
   lin.pred=as.numeric(na.omit(vals*w))
-  if(length(lin.pred)>2) temp=1:2 else if(length(lin.pred)>2) temp=c(1,1) else 
+  if(length(lin.pred)>2) temp=1:2 else if(length(lin.pred)>1) temp=c(1,1) else 
     temp=c()
   sum(lin.pred) + mult*sin(sum(lin.pred[temp])*4)
 }
