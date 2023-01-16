@@ -115,39 +115,39 @@ source('code/maternSine_illustration.R')
 
 
 
-######  matern+sine KL comparisons with Matern GP  ######
+######  matern+sine KL comparisons  ######
 
-name=c('linear','S-linear','nonlin','S-nonlin','DPM')
+names=c('linear','S-linear','nonlin','S-nonlin','DPM','MatCov','local',
+        'tapSamp','autoFRK')
 
 ### compute KL values for different settings, save in output folder
-source('code/maternSine_GP_comparison.R')
+source('code/maternSine_comparison_all.R')
 
 ### plot comparisons results for increasing N
 files=c('sin_lin','sin','sin_random','sin_DPM')
 for(fi in 1:length(files)){
-  load(file=paste0('output/compRes_GP_',files[fi],'.RData'))
-  pdf(file=paste0('plots/klcomp_GP_',files[fi],'.pdf'),width=3.5,height=3.5)
+  load(file=paste0('output/compRes_all_',files[fi],'.RData'))
+  pdf(file=paste0('plots/klcomp_all_',files[fi],'.pdf'),width=3.5,height=3.5)
   par(mgp = c(1.6,.5,0), mar=c(2.6,2.6,.3,.1)) # bltr
+  if(fi==3) m.inds=c(methods,6,8:9) else m.inds=c(methods,6:9)
   matplot(log10(Ns),kls,type='l',lwd=3.5,xlab='n',ylab='KL',xaxt='n',
-          lty=c(methods,6),col=c(methods,6),
-          ylim=range(kls[,-4],na.rm=TRUE)) # exclude nonlin for plot range
+          lty=m.inds,col=m.inds,ylim=range(kls[,c(1:3,5)],na.rm=TRUE))
   axis(1,at=log10(Ns),labels=Ns,lwd=0,lwd.ticks=1)
   if(fi %in% c(1,4)) lloc='topright' else lloc='bottomleft' 
-  legend(lloc,c(name[methods],'MatCov'),lwd=2.5,bg='white',
-         lty=c(methods,6),col=c(methods,6))
+  legend(lloc,c(names[m.inds]),lwd=2.5,bg='white',lty=m.inds,col=m.inds)
   dev.off()
 }
 
+
 fil='prod'
-load(file=paste0('output/compRes_GP_',fil,'.RData'))
-pdf(file=paste0('plots/klcomp_GP_',fil,'.pdf'),width=3.5,height=3.5)
+load(file=paste0('output/compRes_all_',fil,'.RData'))
+pdf(file=paste0('plots/klcomp_all_',fil,'.pdf'),width=3.5,height=3.5)
 par(mgp = c(1.6,.5,0), mar=c(2.6,2.6,.3,.1)) # bltr
+m.inds=c(methods,6:9)
 matplot(log10(Ns),ls,type='l',lwd=3.5,xlab='n',ylab='log score',xaxt='n',
-        lty=c(methods,6),col=c(methods,6),
-        ylim=range(ls[,-4],na.rm=TRUE)) # exclude nonlin for plot range
+        lty=m.inds,col=m.inds,ylim=range(ls[,c(1:3,5)],na.rm=TRUE))
 axis(1,at=log10(Ns),labels=Ns,lwd=0,lwd.ticks=1)
-legend('topright',c(name[methods],'MatCov'),lwd=2.5,bg='white',
-       lty=c(methods,6),col=c(methods,6))
+legend(lloc,c(names[m.inds]),lwd=2.5,bg='white',lty=m.inds,col=m.inds)
 dev.off()
 
 
