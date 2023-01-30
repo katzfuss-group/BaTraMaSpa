@@ -9,7 +9,6 @@
 
 
 ### required functions
-# setwd("G:/My Drive/projects/triangular_spatial")
 source('code/nonlinearSpatial_functions.R')  # method implementation
 source('code/logScore_comparison.R')  # helper functions for comparisons
 
