@@ -2,7 +2,6 @@
 
 #####  plot global precip data   #####
 
-# setwd("G:/My Drive/projects/triangular_spatial")
 source('code/nonlinearSpatial_functions.R')
 
 
