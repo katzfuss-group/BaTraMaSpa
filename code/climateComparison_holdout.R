@@ -1,6 +1,5 @@
 #####  comparison on climate data   #####
 
-# setwd("G:/My Drive/projects/triangular_spatial")
 source('code/nonlinearSpatial_functions.R')
 source('code/logScore_comparison.R')
 
